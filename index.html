@@ -1,0 +1,384 @@
+<!DOCTYPE HTML>
+<!--author: lewap-->
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Predator vs victim simulation</title>
+        <style type="text/css">
+            body {
+                background: repeating-linear-gradient(black, dimgray);
+            }
+            h1 {
+                color: white;
+            }
+            button {
+                width: 150px;
+                background: linear-gradient(white, darkgoldenrod);
+            }
+            canvas {
+                /*background: radial-gradient(dimgray, black);*/
+                border: 1px solid white;
+                height: 620px;
+                width: 620px;
+            }
+            table.settings {
+                border: 0px solid white;
+                text-align: left;
+                color: white;
+            }
+            table.transparent {
+                color: black;
+                border: 0px solid black;
+                border-spacing: 0;
+                border-collapse: collapse;
+            }
+            th.settings {
+                font-weight: normal;
+            }
+            td.settings {
+                /*background-color: white;*/
+                text-align: center;
+            }
+            input, select, option {
+                width: 100px;
+                background: linear-gradient(white, grey);
+                color: #b4041e;
+                font-weight: bold;
+                text-align: center;
+            }
+            div.allPageMiddle {
+                height: 100vh;
+                width: 100vh;
+                position: relative;
+                display: table-cell;
+                vertical-align: middle;
+            }
+            div.allPageTop {
+                height: 100vh;
+                width: 100vh;
+                position: relative;
+                display: table-cell;
+                vertical-align: top;
+            }
+        </style>
+        <script type="text/javascript">
+            document.onkeyup = function(e) {
+                if(e.keyCode == 'C'.charCodeAt(0) || e.keyCode == 'c'.charCodeAt(0)) {
+                    document.getElementById("computeButton").click();
+                } else if(e.keyCode == 'S'.charCodeAt(0) || e.keyCode == 's'.charCodeAt(0)) {
+                    document.getElementById("settingsButton").click();
+                }
+            }
+        </script>
+    </head>
+    <body onload="start();">
+        <div align="center">
+        <div class="allPageMiddle">
+            <h1>Predator vs victim simulation</h1>
+            <table class="transparent">
+                <tbody>
+                <tr>
+                    <td>
+                        <canvas id="cells">
+                        </canvas>
+                    </td>
+                    <td>
+                        <canvas id="plot">
+                        </canvas>
+                    </td>
+                </tr>
+                <tr style="text-align: center">
+                    <td>
+                        <button id="computeButton" title="Start simulation (press C)" onclick="start(); window.scrollTo(0, 0);">
+                            Compute
+                        </button>
+                    </td>
+                    <td>
+                        <button id="settingsButton" title="Set parameters (press S)" onclick="window.scrollTo(0,document.body.scrollHeight);">
+                            Set parameters
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+        <div class="allPageTop">
+        <h1>Set parameters below</h1>
+        <table class="settings">
+            <tbody>
+                <tr>
+                    <th class="settings">
+                        Step time [ms]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="millisecondsSpeed" value="10">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Predators initial coefficient [0, 1]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="initialPredatorsCoefficient" value="0.02">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Victims initial coefficient [0, 1]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="initialVictimsCoefficient" value="0.1">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Food initial coefficient [0, 1]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="initialFoodCoefficient" value="0.2">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Initial predator energy:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="initialPredatorEnergy" value="50">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Initial victim energy:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="initialVictimEnergy" value="50">
+                        </label>
+                    </td>
+                </tr>
+                 <tr>
+                    <th class="settings">
+                        Predator energy incrementation:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="predatorEnergyInc" value="1">
+                        </label>
+                    </td>
+                </tr>
+                 <tr>
+                    <th class="settings">
+                        Predator energy decrementation:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="predatorEnergyDec" value="1">
+                        </label>
+                    </td>
+                </tr>
+                 <tr>
+                    <th class="settings">
+                        Victim energy incrementation:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="victimEnergyInc" value="1">
+                        </label>
+                    </td>
+                </tr>
+                 <tr>
+                    <th class="settings">
+                        Victim energy decrementation:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="victimEnergyDec" value="1">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Predator birth probability [0, 1]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="newPredatorProbability" value="0.9">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Victim birth probability [0, 1]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="newVictimProbability" value="0.04">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        New food probability [0, 1]:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="newFoodProbability" value="0.3">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Predator's max move step:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="predatorMoveMaxStep" value="1">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Victim's max move step:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="victimMoveMaxStep" value="1">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Stay probability:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="stayProbability" value="0.5">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Border type:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <select class="settings" id="borderMode">
+                                <option>No border</option>
+                                <option>Wall</option>
+                                <option>Abyss</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Number of rows (same as columns):
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="resolution" value="100">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Plot speed coefficient:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <input type="text" id="graphUpdateWaitTrials" value="5">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Background type:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <select class="settings" id="backgroundType">
+                                <option>Black</option>
+                                 <option>DimGrey</option>
+                                <option>Gradient</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Predator color:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <select class="settings" id="predatorColor">
+                                <option>yellow</option>
+                                <option>orange</option>
+                                <option selected>red</option>
+                                <option>pink</option>
+                                <option>lightblue</option>
+                                <option>blue</option>
+                                <option>green</option>
+                                <option>darkgreen</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Victim color:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <select class="settings" id="victimColor">
+                                <option selected>yellow</option>
+                                <option>orange</option>
+                                <option>red</option>
+                                <option>pink</option>
+                                <option>lightblue</option>
+                                <option>blue</option>
+                                <option>green</option>
+                                <option>darkgreen</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="settings">
+                        Food color:
+                    </th>
+                    <td class="settings">
+                        <label>
+                            <select class="settings" id="foodColor">
+                                <option>yellow</option>
+                                <option>orange</option>
+                                <option>red</option>
+                                <option>pink</option>
+                                <option>lightblue</option>
+                                <option selected>blue</option>
+                                <option>green</option>
+                                <option>darkgreen</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </br>
+            <button title="Start simulation (press C)" onclick="start(); window.scrollTo(0, 0);">
+                Compute
+            </button>
+        </div>
+        <script type="text/javascript" src="simulation.js"></script>
+    </body>
+</html>
