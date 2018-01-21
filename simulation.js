@@ -199,9 +199,9 @@ function launchSimulation(cells2DContext, plot2DContext) {
         for (var j = 0; j < resolution; j++) {
             var entity = field[i][j];
 
-             if (!isEntityCorrect(entity) || entity == entities.food) {
-                 continue;
-             }
+            if (!isEntityCorrect(entity) || entity == entities.food) {
+                continue;
+            }
 
             if (entity == entities.nothing) {
                 if (Math.random() <= newFoodProbability) {
@@ -294,6 +294,12 @@ function launchSimulation(cells2DContext, plot2DContext) {
                         ++predatorsNumber;
                     }
                     --victimsNumber;
+                } else if(newEntity == entities.food) { // predator moves on, destroys food, but does not gain energy
+                    field[newPositionX][newPositionY] = entities.predator;
+		    energy[newPositionX][newPositionY] = energy[i][j] - predatorEnergyDec;
+                    field[i][j] = entities.nothing;
+                    energy[i][j] = 0;
+                    --foodNumber;
                 } else {
                     energy[i][j] -= predatorEnergyDec;
                     if (energy[i][j] < 0) {
